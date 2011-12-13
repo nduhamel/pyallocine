@@ -20,9 +20,26 @@
 import urllib
 import urllib2
 import json
-
+import tempfile
 
 PARTNER = 'YW5kcm9pZC12M3M'
+CACHE = True
+
+if CACHE:
+    import cache
+    opener = urllib2.build_opener(cache.CacheHandler(tempfile.mkdtemp()))
+else:
+    opener = urllib2.build_opener()
+
+
+def toogle_cache():
+    if CACHE:
+        opener = urllib2.build_opener()
+        CACHE = False
+    else:
+        opener = urllib2.build_opener(cache.CacheHandler(tempfile.mkdtemp()))
+        CACHE = True
+
 
 def search(q, format=None, filter=None, count=None, page=None):
     """
@@ -52,7 +69,7 @@ def search(q, format=None, filter=None, count=None, page=None):
                              'count': count,
                              'page': page,
                             })
-    rep = urllib2.urlopen('http://api.allocine.fr/rest/v3/search?'+dataget)
+    rep = opener.open('http://api.allocine.fr/rest/v3/search?'+dataget)
     if format == 'json':
         return json.loads(rep.read())
     else:
@@ -91,7 +108,7 @@ def tvseries(code, profile=None, mediafmt=None, format=None, striptags=None):
                              'mediafmt': mediafmt,
                              'striptags': striptags,
                             })
-    rep = urllib2.urlopen('http://api.allocine.fr/rest/v3/tvseries?'+dataget)
+    rep = opener.open('http://api.allocine.fr/rest/v3/tvseries?'+dataget)
     if format == 'json':
         return json.loads(rep.read())
     else:
@@ -130,7 +147,7 @@ def season(code, profile=None, mediafmt=None, format=None, striptags=None):
                              'mediafmt': mediafmt,
                              'striptags': striptags,
                             })
-    rep = urllib2.urlopen('http://api.allocine.fr/rest/v3/season?'+dataget)
+    rep = opener.open('http://api.allocine.fr/rest/v3/season?'+dataget)
     if format == 'json':
         return json.loads(rep.read())
     else:
@@ -164,7 +181,7 @@ def media(code, profile=None, mediafmt=None, format=None):
                      'mediafmt': mediafmt,
                     })
 
-    rep = urllib2.urlopen('http://api.allocine.fr/rest/v3/media?'+dataget)
+    rep = opener.open('http://api.allocine.fr/rest/v3/media?'+dataget)
     if format == 'json':
         return json.loads(rep.read())
     else:
@@ -206,7 +223,7 @@ def tvseriesList(count=None, page=None, profile=None, filter=None, order=None, f
 
     dataget = urllib.urlencode(data)
 
-    rep = urllib2.urlopen('http://api.allocine.fr/rest/v3/tvseriesList?'+dataget)
+    rep = opener.open('http://api.allocine.fr/rest/v3/tvseriesList?'+dataget)
     if data['format'] == 'json':
         return json.loads(rep.read())
     else:
